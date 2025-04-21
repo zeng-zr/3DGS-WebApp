@@ -13,7 +13,7 @@
 
 1. 克隆仓库到本地
 ```bash
-git clone https://github.com/yourusername/3DGS-WebApp.git
+git clone https://github.com/zeng-zr/3DGS-WebApp.git
 cd 3DGS-WebApp
 ```
 
