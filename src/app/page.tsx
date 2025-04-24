@@ -1,6 +1,25 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState } from 'react';
+import UploadButton from '@/components/UploadButton';
+import DownloadButton from '@/components/DownloadButton';
+import type { RcFile } from 'rc-upload/lib/interface';
+
+// 简单消息提示
+const message = {
+  success: (content: string) => {
+    console.log(content);
+    alert(content);
+  },
+  error: (content: string) => {
+    console.error(content);
+    alert(content);
+  },
+  warning: (content: string) => {
+    console.warn(content);
+    alert(content);
+  }
+};
 
 export default function Home() {
   const [uploadStatus, setUploadStatus] = useState<string>('下载点云文件');
@@ -8,54 +27,70 @@ export default function Home() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isDownloadReady, setIsDownloadReady] = useState(false);
   const [progress, setProgress] = useState(0);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [downloadUrl, setDownloadUrl] = useState('');
 
-  const handleUploadTrigger = () => {
-    fileInputRef.current?.click();
+  const handleUploadStart = (file: RcFile) => {
+    setIsUploading(true);
+    setIsProcessing(true);
+    setIsDownloadReady(false);
+    setUploadStatus('正在上传视频...');
+    setProgress(10);
+    console.log('开始上传文件:', file.name);
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setIsUploading(true);
-      setIsProcessing(true);
-      setIsDownloadReady(false);
-      setUploadStatus('正在上传视频...');
-      setProgress(10);
-      
-      // 模拟上传和处理流程
-      setTimeout(() => {
-        setUploadStatus('提取关键帧...');
-        setProgress(40);
-      }, 2000);
+  const handleUploadProgress = (percent: number) => {
+    const normalizedPercent = Math.floor(percent * 0.7); // 上传占总进度的70%
+    setProgress(normalizedPercent);
+    setUploadStatus(`正在上传视频... ${normalizedPercent}%`);
+    console.log('上传进度:', normalizedPercent);
+  };
 
-      setTimeout(() => {
-        setUploadStatus('生成点云...');
-        setProgress(70);
-      }, 4000);
+  const handleUploadSuccess = (response: any, file: RcFile) => {
+    console.log('上传成功:', response);
+    setUploadStatus('处理中...');
+    setProgress(70);
 
-      setTimeout(() => {
-        setUploadStatus('下载点云文件');
-        setIsProcessing(false);
-        setIsUploading(false);
-        setIsDownloadReady(true);
-        setProgress(100);
-      }, 6000);
-    }
+    // 模拟服务器端处理点云的过程
+    // 在实际实现中，这里应该建立WebSocket连接或定期轮询服务器获取处理进度
+    setTimeout(() => {
+      setUploadStatus('生成点云...');
+      setProgress(90);
+    }, 2000);
+
+    setTimeout(() => {
+      setUploadStatus('下载点云文件');
+      setIsProcessing(false);
+      setIsUploading(false);
+      setIsDownloadReady(true);
+      setProgress(100);
+      // 设置下载URL
+      setDownloadUrl(response.url);
+      message.success('视频处理完成，点云已生成');
+    }, 4000);
+  };
+
+  const handleUploadError = (error: Error) => {
+    console.error('上传错误:', error);
+    setIsUploading(false);
+    setIsProcessing(false);
+    setProgress(0);
+    message.error('上传失败: ' + error.message);
   };
 
   const handleDownload = () => {
     if (!isDownloadReady) return;
     
-    // 模拟下载点云文件
-    const fakeData = new Blob(['假设这是点云数据'], { type: 'text/plain' });
-    const url = URL.createObjectURL(fakeData);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'pointcloud.ply';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    // 如果有下载URL，直接下载
+    if (downloadUrl) {
+      const a = document.createElement('a');
+      a.href = downloadUrl;
+      a.download = 'pointcloud.ply';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } else {
+      message.warning('下载链接不可用');
+    }
   };
 
   return (
@@ -78,32 +113,19 @@ export default function Home() {
         </div>
       )}
 
-      <div className="button-group w-full mt-4 sm:mt-6">
-        {/* 上传按钮 */}
-        <button 
-          className="custom-button hover:bg-primary/80 transition-colors"
-          onClick={handleUploadTrigger}
-          disabled={isProcessing}
-        >
-          上传视频
-        </button>
-        <input 
-          ref={fileInputRef}
-          id="videoUpload" 
-          type="file" 
-          accept="video/*" 
-          onChange={handleFileChange}
-          hidden 
+      <div className="button-group mt-4 sm:mt-6">
+        <UploadButton 
+          isProcessing={isProcessing}
+          onStart={handleUploadStart}
+          onProgress={handleUploadProgress}
+          onSuccess={handleUploadSuccess}
+          onError={handleUploadError}
         />
-
-        {/* 下载按钮 */}
-        <button 
-          className={`custom-button ${isDownloadReady ? '' : 'disabled'}`}
-          disabled={!isDownloadReady}
-          onClick={handleDownload}
-        >
-          {isDownloadReady ? '下载点云文件' : uploadStatus}
-        </button>
+        <DownloadButton 
+          isDownloadReady={isDownloadReady} 
+          uploadStatus={uploadStatus} 
+          onDownload={handleDownload} 
+        />
       </div>
     </main>
   );

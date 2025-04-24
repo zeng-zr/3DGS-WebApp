@@ -1,6 +1,84 @@
 # 3D Gaussian Splatting Web App
 
-基于 Next.js 和 React 开发的 3D Gaussian Splatting 点云重建应用，支持视频上传和点云生成。
+这是一个基于 Next.js 的 3D Gaussian Splatting 点云重建应用。用户可以上传视频，系统会处理并生成3D点云文件供下载和浏览。
+
+## 功能特点
+
+- 视频上传：支持上传视频文件进行3D重建
+- 实时进度：显示上传和处理进度
+- 点云下载：重建完成后可下载点云文件
+
+## 开发指南
+
+### 当前实现
+
+当前实现使用 rc-upload 组件处理文件上传，并将文件保存在本地的 `uploads` 目录中。处理步骤基于模拟，没有实际的3D点云生成功能。
+
+### 实际服务器集成步骤
+
+要将此应用集成到实际服务器环境，请按照以下步骤操作：
+
+1. **设置服务器端点**：
+   - 修改 `src/components/UploadButton.tsx` 中的 API 端点，指向您的实际服务器 URL：
+   ```typescript
+   const response = await fetch('https://your-api-server.com/api/upload', {
+     method: 'POST',
+     body: formData,
+   });
+   ```
+
+2. **实现3D Gaussian Splatting 处理逻辑**：
+   - 在服务器上，接收上传的视频文件
+   - 提取关键帧
+   - 使用 Gaussian Splatting 算法生成点云
+   - 提供点云文件下载链接或 WebRTC 实时预览
+   - 考虑使用 WebSocket 或轮询机制实时更新处理进度
+
+3. **处理进度跟踪**：
+   - 替换 `handleUploadSuccess` 中的模拟进度更新，使用 WebSocket 或轮询 API 获取实际处理进度：
+   ```typescript
+   // 示例：建立 WebSocket 连接
+   const ws = new WebSocket(`wss://your-api-server.com/ws/job/${jobId}`);
+   ws.onmessage = (event) => {
+     const data = JSON.parse(event.data);
+     setProgress(data.progress);
+     setUploadStatus(data.status);
+     
+     if (data.completed) {
+       setIsDownloadReady(true);
+       setDownloadUrl(data.downloadUrl);
+       ws.close();
+     }
+   };
+   ```
+
+4. **安全性考虑**：
+   - 添加身份验证机制
+   - 实现文件大小和类型的服务器端验证
+   - 使用 HTTPS 保护数据传输
+   - 考虑添加上传速率限制和防滥用措施
+
+5. **资源管理**：
+   - 实现文件过期和清理机制
+   - 监控服务器资源使用情况
+   - 考虑使用云存储服务（如 AWS S3）存储上传的视频和生成的点云文件
+
+## 技术栈
+
+- Next.js
+- React
+- rc-upload
+- 3D Gaussian Splatting 算法 (服务器端实现)
+
+## 安装与运行
+
+```bash
+# 安装依赖
+npm install
+
+# 启动开发服务器
+npm run dev
+```
 
 ## 第一部分：部署和运行
 
