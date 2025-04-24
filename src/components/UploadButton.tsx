@@ -3,6 +3,12 @@
 import React from 'react';
 import Upload from 'rc-upload';
 import type { RcFile, UploadRequestOption } from 'rc-upload/lib/interface';
+import { 
+  MAX_FILE_SIZE, 
+  ACCEPTED_FILE_TYPES, 
+  UPLOAD_API_ENDPOINT, 
+  UPLOAD_CONFIG 
+} from '@/config/upload';
 
 interface UploadButtonProps {
   isProcessing: boolean;
@@ -33,11 +39,11 @@ export default function UploadButton({
     
     // 创建FormData对象
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append(UPLOAD_CONFIG.fileFieldName, file);
     
     try {
       // 发送请求到上传API端点
-      const response = await fetch('/api/upload', {
+      const response = await fetch(UPLOAD_API_ENDPOINT, {
         method: 'POST',
         body: formData,
       });
@@ -54,20 +60,20 @@ export default function UploadButton({
   };
   
   const uploadProps = {
-    accept: 'video/*',
+    accept: ACCEPTED_FILE_TYPES.join(','),
     customRequest,
     beforeUpload: (file: RcFile) => {
       // 检查文件类型
-      const isVideo = file.type.startsWith('video/');
-      if (!isVideo) {
-        message.error('请上传视频文件!');
+      const isAcceptedType = ACCEPTED_FILE_TYPES.some(type => file.type === type);
+      if (!isAcceptedType) {
+        message.error(UPLOAD_CONFIG.fileTypesText);
         return false;
       }
       
-      // 检查文件大小 (假设最大文件大小是500MB)
-      const isLt500M = file.size / 1024 / 1024 < 500;
-      if (!isLt500M) {
-        message.error('视频文件必须小于500MB!');
+      // 检查文件大小
+      const isLtMaxSize = file.size / 1024 / 1024 < MAX_FILE_SIZE;
+      if (!isLtMaxSize) {
+        message.error(UPLOAD_CONFIG.fileSizeText);
         return false;
       }
       
