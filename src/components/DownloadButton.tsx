@@ -15,7 +15,7 @@ export default function DownloadButton({ isDownloadReady, uploadStatus, onDownlo
       disabled={!isDownloadReady}
       onClick={onDownload}
     >
-      {isDownloadReady ? '下载点云文件' : uploadStatus}
+      下载点云文件
     </button>
   );
 } 

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import UploadButton from '@/components/UploadButton';
 import DownloadButton from '@/components/DownloadButton';
 import type { RcFile } from 'rc-upload/lib/interface';
+import { info } from 'console';
 
 // 简单消息提示
 const message = {
@@ -34,39 +35,17 @@ export default function Home() {
     setIsProcessing(true);
     setIsDownloadReady(false);
     setUploadStatus('正在上传视频...');
-    setProgress(10);
+    setProgress(10); 
     console.log('开始上传文件:', file.name);
   };
 
   const handleUploadProgress = (percent: number) => {
-    const normalizedPercent = Math.floor(percent * 0.7); // 上传占总进度的70%
-    setProgress(normalizedPercent);
-    setUploadStatus(`正在上传视频... ${normalizedPercent}%`);
-    console.log('上传进度:', normalizedPercent);
+    
   };
 
   const handleUploadSuccess = (response: any, file: RcFile) => {
-    console.log('上传成功:', response);
-    setUploadStatus('处理中...');
-    setProgress(70);
-
-    // 模拟服务器端处理点云的过程
-    // 在实际实现中，这里应该建立WebSocket连接或定期轮询服务器获取处理进度
-    setTimeout(() => {
-      setUploadStatus('生成点云...');
-      setProgress(90);
-    }, 2000);
-
-    setTimeout(() => {
-      setUploadStatus('下载点云文件');
-      setIsProcessing(false);
-      setIsUploading(false);
-      setIsDownloadReady(true);
-      setProgress(100);
-      // 设置下载URL
-      setDownloadUrl(response.url);
-      message.success('视频处理完成，点云已生成');
-    }, 4000);
+    // 回调处理uploadsucess
+    setUploadStatus("上传完成");
   };
 
   const handleUploadError = (error: Error) => {
@@ -100,26 +79,15 @@ export default function Home() {
         本应用支持基于 3D Gaussian Splatting 技术的点云重建。
         请使用手机拍摄室内视频并上传，系统将提取关键帧并生成 3D 点云供 VR 浏览。
       </p>
-
-      {isProcessing && (
-        <div className="w-full max-w-md mt-4 sm:mt-6 mb-2 sm:mb-4">
-          <div className="w-full bg-gray-200 rounded-full h-2.5">
-            <div 
-              className="bg-primary h-2.5 rounded-full transition-all duration-300" 
-              style={{ width: `${progress}%` }}
-            ></div>
-          </div>
-          <p className="text-xs sm:text-sm text-center mt-2 text-gray-500">{uploadStatus}</p>
-        </div>
-      )}
-
+      <p className="invisible">占位</p> {/* 隐藏但保留结构 */}
       <div className="button-group mt-4 sm:mt-6">
         <UploadButton 
           isProcessing={isProcessing}
           onStart={handleUploadStart}
           onProgress={handleUploadProgress}
-          onSuccess={handleUploadSuccess}
+          onSuccess={handleUploadSuccess}//直接调用，跳过progress
           onError={handleUploadError}
+          uploadStatus={uploadStatus} 
         />
         <DownloadButton 
           isDownloadReady={isDownloadReady} 
