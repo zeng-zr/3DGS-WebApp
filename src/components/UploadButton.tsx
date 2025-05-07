@@ -47,9 +47,9 @@ export default function UploadButton({
       const response = await fetch(UPLOAD_API_ENDPOINT, {
         method: "POST",
         body: formData,
-      });
+      });//fetch 发送http请求，await异步等待服务器返回值
 
-      if (!response.ok) {
+      if (!response.ok) {//response.ok布尔值，表示http状态码是否在范围内
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 

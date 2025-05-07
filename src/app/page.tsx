@@ -10,7 +10,7 @@ import { info } from 'console';
 const message = {
   success: (content: string) => {
     console.log(content);
-    alert(content);
+    alert(content); 
   },
   error: (content: string) => {
     console.error(content);
@@ -27,7 +27,7 @@ export default function Home() {
   const [isUploading, setIsUploading] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isDownloadReady, setIsDownloadReady] = useState(false);
-  const [progress, setProgress] = useState(0);
+  // const [progress, setProgress] = useState(0);
   const [downloadUrl, setDownloadUrl] = useState('');
 
   const handleUploadStart = (file: RcFile) => {
@@ -35,7 +35,7 @@ export default function Home() {
     setIsProcessing(true);
     setIsDownloadReady(false);
     setUploadStatus('正在上传视频...');
-    setProgress(10); 
+    // setProgress(10); 
     console.log('开始上传文件:', file.name);
   };
 
@@ -52,7 +52,7 @@ export default function Home() {
     console.error('上传错误:', error);
     setIsUploading(false);
     setIsProcessing(false);
-    setProgress(0);
+    // setProgress(0);
     message.error('上传失败: ' + error.message);
   };
 
@@ -79,7 +79,7 @@ export default function Home() {
         本应用支持基于 3D Gaussian Splatting 技术的点云重建。
         请使用手机拍摄室内视频并上传，系统将提取关键帧并生成 3D 点云供 VR 浏览。
       </p>
-      <p className="invisible">占位</p> {/* 隐藏但保留结构 */}
+      <p className="invisible">占位</p> {/* 删了会报错 */}
       <div className="button-group mt-4 sm:mt-6">
         <UploadButton 
           isProcessing={isProcessing}
