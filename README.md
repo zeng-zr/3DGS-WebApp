@@ -1,179 +1,169 @@
-# 3D Gaussian Splatting Web App
+# 3DGS-WebApp
 
-这是一个基于 Next.js 的 3D Gaussian Splatting 点云重建应用。用户可以上传视频，系统会处理并生成3D点云文件供下载和浏览。
+基于Next.js的3D Gaussian Splatting Web前端应用，提供视频上传和点云可视化功能。
 
-## 功能特点
+## 功能概述
 
-- 视频上传：支持上传视频文件进行3D重建
-- 实时进度：显示上传和处理进度
-- 点云下载：重建完成后可下载点云文件
+3DGS-WebApp是一个现代化的Web应用，作为3D Gaussian Splatting处理系统的前端界面。主要功能包括：
 
-## 开发指南
+- 视频文件上传和处理
+- 实时处理进度显示
+- 3D点云数据下载
+- 响应式设计，适配多种设备
 
-### 当前实现
-
-当前实现使用 rc-upload 组件处理文件上传，并将文件保存在本地的 `uploads` 目录中。处理步骤基于模拟，没有实际的3D点云生成功能。
-
-### 实际服务器集成步骤
-
-要将此应用集成到实际服务器环境，请按照以下步骤操作：
-
-1. **设置服务器端点**：
-   - 修改 `src/components/UploadButton.tsx` 中的 API 端点，指向您的实际服务器 URL：
-   ```typescript
-   const response = await fetch('https://your-api-server.com/api/upload', {
-     method: 'POST',
-     body: formData,
-   });
-   ```
-
-2. **实现3D Gaussian Splatting 处理逻辑**：
-   - 在服务器上，接收上传的视频文件
-   - 提取关键帧
-   - 使用 Gaussian Splatting 算法生成点云
-   - 提供点云文件下载链接或 WebRTC 实时预览
-   - 考虑使用 WebSocket 或轮询机制实时更新处理进度
-
-3. **处理进度跟踪**：
-   - 替换 `handleUploadSuccess` 中的模拟进度更新，使用 WebSocket 或轮询 API 获取实际处理进度：
-   ```typescript
-   // 示例：建立 WebSocket 连接
-   const ws = new WebSocket(`wss://your-api-server.com/ws/job/${jobId}`);
-   ws.onmessage = (event) => {
-     const data = JSON.parse(event.data);
-     setProgress(data.progress);
-     setUploadStatus(data.status);
-     
-     if (data.completed) {
-       setIsDownloadReady(true);
-       setDownloadUrl(data.downloadUrl);
-       ws.close();
-     }
-   };
-   ```
-
-4. **安全性考虑**：
-   - 添加身份验证机制
-   - 实现文件大小和类型的服务器端验证
-   - 使用 HTTPS 保护数据传输
-   - 考虑添加上传速率限制和防滥用措施
-
-5. **资源管理**：
-   - 实现文件过期和清理机制
-   - 监控服务器资源使用情况
-   - 考虑使用云存储服务（如 AWS S3）存储上传的视频和生成的点云文件
+本应用与[3DGS-Processor](https://github.com/your-username/3DGS-Processor)后端服务配合使用，构成完整的3D Gaussian Splatting处理系统。
 
 ## 技术栈
 
-- Next.js
-- React
-- rc-upload
-- 3D Gaussian Splatting 算法 (服务器端实现)
+- **框架**：Next.js 15
+- **UI**：React 19 + Tailwind CSS
+- **上传**：rc-upload
+- **通信**：WebSocket + RESTful API
+- **构建工具**：Turbopack
 
-## 安装与运行
+## 安装与使用
+
+### 前提条件
+
+- Node.js (v18+)
+- 配置好的3DGS-Processor后端服务
+
+### 安装
 
 ```bash
+# 克隆仓库
+git clone https://github.com/your-username/3DGS-WebApp.git
+cd 3DGS-WebApp
+
 # 安装依赖
 npm install
+```
 
-# 启动开发服务器
+### 配置
+
+主要配置文件包括：
+
+- `next.config.ts`：Next.js配置，包括跨域设置
+- `src/config/upload.ts`：上传文件配置
+- `src/app/page.tsx`：WebSocket连接配置
+
+### 运行
+
+```bash
+# 开发模式
 npm run dev
-```
 
-## 第一部分：部署和运行
-
-### 环境要求
-
-- Node.js 18.0.0 或更高版本
-- npm 9.0.0 或更高版本
-
-### 安装步骤
-
-1. 克隆仓库到本地
-```bash
-git clone https://github.com/zeng-zr/3DGS-WebApp.git
-cd 3DGS-WebApp
-```
-
-2. 安装依赖
-```bash
-npm install
-```
-
-3. 运行开发服务器
-```bash
-npm run dev
-```
-
-4. 打开浏览器访问 [http://localhost:3000](http://localhost:3000) 查看应用
-
-### 生产环境部署
-
-1. 构建应用
-```bash
+# 构建生产版本
 npm run build
-```
 
-2. 启动生产服务器
-```bash
+# 启动生产版本
 npm run start
 ```
 
-### 部署到 Vercel
+## 项目结构
 
-作为 Next.js 应用，可以轻松部署到 Vercel 平台：
+```
+3DGS-WebApp/
+├── public/               # 静态资源
+├── src/
+│   ├── app/              # 应用路由和页面
+│   │   ├── api/          # API路由
+│   │   │   ├── download/ # 下载API
+│   │   │   ├── status/   # 状态查询API
+│   │   │   └── upload/   # 上传API
+│   │   ├── globals.css   # 全局样式
+│   │   ├── layout.tsx    # 全局布局
+│   │   └── page.tsx      # 主页面
+│   ├── components/       # 可复用组件
+│   │   ├── DownloadButton.tsx
+│   │   └── UploadButton.tsx
+│   └── config/           # 配置文件
+├── uploads/              # 上传文件存储
+├── .next/                # Next.js生成文件
+├── next.config.ts        # Next.js配置
+├── package.json          # 项目依赖
+└── README.md             # 项目文档
+```
 
-1. 在 [Vercel](https://vercel.com) 创建账号并连接 GitHub 仓库
-2. 导入项目并自动部署
+## 工作流程
 
-### 学习资源
+1. 用户通过界面上传视频文件
+2. WebApp将文件保存到`uploads`目录
+3. WebApp通知3DGS-Processor开始处理
+4. WebApp通过WebSocket接收处理进度更新
+5. 处理完成后，用户可下载生成的点云文件
 
-要深入了解本项目使用的技术，请参考以下资源：
+## 与3DGS-Processor的集成
 
-- [Next.js 文档](https://nextjs.org/docs) - 了解 Next.js 特性和 API
-- [React 官方文档](https://react.dev) - 学习 React 基础和高级概念
-- [Tailwind CSS 文档](https://tailwindcss.com/docs) - 学习使用的 CSS 框架
-- [3D Gaussian Splatting 论文](https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/) - 了解底层技术原理
+本应用通过以下方式与3DGS-Processor后端集成：
 
-## 第二部分：开发内容
+1. 上传API：将上传的视频传递给处理服务
+2. WebSocket：接收实时处理进度
+3. 状态API：作为WebSocket的备用方案查询处理状态
+4. 下载API：获取处理完成的点云文件
 
-本项目是基于 3D Gaussian Splatting 技术的前端应用，主要完成了以下功能：
+## 未来开发计划
 
-### 核心功能
+### 短期目标
 
-1. **视频上传功能**
-   - 支持用户上传手机拍摄的室内视频
-   - 文件格式验证和上传状态反馈
+1. **3D可视化**
+   - 集成Three.js进行浏览器内点云预览
+   - 添加基本的相机控制和交互功能
+   - 支持不同格式的点云渲染
 
-2. **处理流程可视化**
-   - 上传进度显示
-   - 关键帧提取状态展示
-   - 点云生成过程可视化
+2. **用户体验优化**
+   - 添加拖放上传功能
+   - 增强移动端支持
+   - 添加视频预览功能
 
-3. **点云文件下载**
-   - 生成完成后支持下载点云文件
-   - 文件命名和类型处理
+3. **错误处理增强**
+   - 更友好的错误信息展示
+   - 重试机制
+   - 离线支持
 
-### 技术特性
+### 中期目标
 
-1. **响应式设计**
-   - 适配桌面和移动设备
-   - 针对触摸设备优化的交互体验
+1. **高级3D交互**
+   - 点云编辑功能
+   - 支持材质和光照调整
+   - 多视角相机配置
 
-2. **现代 UI/UX**
-   - 简洁直观的用户界面
-   - 状态反馈和进度指示
-   - 流畅的动画过渡效果
+2. **多媒体支持**
+   - 支持图片集合上传
+   - 支持从URL导入
+   - 添加图库和历史记录
 
-3. **技术栈**
-   - Next.js 15 App Router
-   - React 19 客户端组件
-   - Tailwind CSS 4 样式系统
-   - TypeScript 类型检查
+3. **用户管理**
+   - 添加用户认证
+   - 项目管理
+   - 结果分享功能
 
-### 未来计划
+### 长期目标
 
-- 集成后端 API 进行真实视频处理
-- 添加点云预览功能
-- 支持更多文件格式和处理选项
-- 实现 VR 浏览模式
+1. **VR/AR集成**
+   - 支持WebXR的VR/AR展示
+   - 沉浸式交互体验
+   - 空间音频支持
+
+2. **协作功能**
+   - 实时多用户协作
+   - 注释和评论
+   - 版本控制
+
+3. **高级渲染**
+   - 实时光照和阴影
+   - 环境映射
+   - 后期处理效果
+
+## 贡献指南
+
+欢迎贡献代码、报告问题或提出改进建议！请遵循以下步骤：
+
+1. Fork项目并创建你的特性分支
+2. 添加注释并提交变更
+3. 推送到你的分支
+4. 创建一个Pull Request
+
+## 许可证
+
+[MIT](LICENSE)
