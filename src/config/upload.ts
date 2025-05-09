@@ -9,7 +9,7 @@ export const MAX_FILE_SIZE = 800;
 export const ACCEPTED_FILE_TYPES = ['video/mp4', 'video/quicktime', 'video/webm', 'video/x-msvideo'];
 
 // 上传API端点
-export const UPLOAD_API_ENDPOINT = '/home/ubuntu/3DGSBACK/uploads';
+export const UPLOAD_API_ENDPOINT = '/api/upload';
 
 // 上传配置
 export const UPLOAD_CONFIG = {

@@ -94,7 +94,7 @@ export default function UploadButton({
     <Upload {...uploadProps}>
       <button
         className={`custom-button ${!isProcessing ?  ' ' :'disabled'} hover:bg-primary/80 transition-colors`}
-        disabled={isProcessing}
+        disabled={isProcessing}//如果正在处理则显示disacbled样式
       >
         {!isProcessing ? "上传视频文件" : uploadStatus}
       </button>
