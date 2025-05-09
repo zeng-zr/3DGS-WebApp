@@ -83,11 +83,11 @@ export default function UploadButton({
       return true;
     },
     onStart,
-    onProgress,
     onSuccess,
     onError,
     disabled: isProcessing,
     uploadStatus,
+    onProgress,
   };
 
   return (
