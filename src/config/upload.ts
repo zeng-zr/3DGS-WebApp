@@ -3,7 +3,7 @@
  */
 
 // 允许上传的最大文件大小 (MB)
-export const MAX_FILE_SIZE = 500;
+export const MAX_FILE_SIZE = 800;
 
 // 允许上传的文件类型
 export const ACCEPTED_FILE_TYPES = ['video/mp4', 'video/quicktime', 'video/webm', 'video/x-msvideo'];
